@@ -3,6 +3,12 @@ from .. import register_map
 
 from ..base import TimeSeries, ProcessingModule
 
+def constructor_arg(name):
+    def _dec(func):
+        setattr(func, '__constructor_arg', name)
+        return func
+    return _dec
+
 @register_map(ProcessingModule)
 class ModuleMap(ObjectMapper):
 

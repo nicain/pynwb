@@ -1,7 +1,7 @@
 import re
 import sys
 from collections import OrderedDict
-
+from six import with_metaclass, raise_from
 from ..utils import docval, getargs, ExtenderMeta, get_docval, fmt_docval_args
 from ..container import Container
 from ..spec import Spec, AttributeSpec, DatasetSpec, GroupSpec, LinkSpec, NAME_WILDCARD, SpecCatalog, NamespaceCatalog
@@ -83,16 +83,16 @@ class BuildManager(object):
 
 class DecExtenderMeta(ExtenderMeta):
 
-    @classmethod
-    def __prepare__(metacls, name, bases, **kwargs):
-        return {
-            'constructor_arg': metacls.constructor_arg,
-            'is_constructor_arg': metacls.is_constructor_arg,
-            'get_cargname': metacls.get_cargname,
-            'obj_attr': metacls.obj_attr,
-            'is_attr': metacls.is_attr,
-            'get_obj_attr': metacls.get_cargname
-        }
+    # @classmethod
+    # def __prepare__(metacls, name, bases, **kwargs):
+    #     return {
+    #         'constructor_arg': metacls.constructor_arg,
+    #         'is_constructor_arg': metacls.is_constructor_arg,
+    #         'get_cargname': metacls.get_cargname,
+    #         'obj_attr': metacls.obj_attr,
+    #         'is_attr': metacls.is_attr,
+    #         'get_obj_attr': metacls.get_cargname
+    #     }
 
     __obj_attr = '__obj_attr__'
     @classmethod
@@ -111,6 +111,7 @@ class DecExtenderMeta(ExtenderMeta):
         return getattr(attr_val, cls.__obj_attr)
 
     __const_arg = '__constructor_arg'
+
     @classmethod
     def constructor_arg(cls, name):
         def _dec(func):
@@ -126,7 +127,7 @@ class DecExtenderMeta(ExtenderMeta):
     def get_cargname(cls, attr_val):
         return getattr(attr_val, cls.__const_arg)
 
-class ObjectMapper(object, metaclass=DecExtenderMeta):
+class ObjectMapper(with_metaclass(DecExtenderMeta, object)):
     '''A class for mapping between Spec objects and Container attributes
 
 
@@ -160,7 +161,7 @@ class ObjectMapper(object, metaclass=DecExtenderMeta):
         ''' the Spec used in this ObjectMapper '''
         return self.__spec
 
-    @constructor_arg('name')
+    @DecExtenderMeta.constructor_arg('name')
     def get_container_name(self, builder):
         return builder.name
 
@@ -535,7 +536,7 @@ class ObjectMapper(object, metaclass=DecExtenderMeta):
             obj = cls(*args, **kwargs)
         except Exception as ex:
             msg = 'Could not construct %s object' % (cls.__name__)
-            raise Exception(msg) from ex
+            raise_from(Exception(msg), ex)
         return obj
 
     @docval({'name': 'container', 'type': Container, 'doc': 'the Container to get the Builder name for'})
@@ -857,4 +858,3 @@ class TypeMap(object):
             raise ValueError('No ObjectMapper found for container of type %s' % str(container.__class__.__name__))
         else:
             return attr_map.get_builder_name(container)
-

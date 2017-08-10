@@ -3,6 +3,12 @@ from .. import register_map
 
 from pynwb.epoch import Epoch, EpochTimeSeries
 
+def constructor_arg(name):
+    def _dec(func):
+        setattr(func, '__constructor_arg', name)
+        return func
+    return _dec
+
 @register_map(Epoch)
 class EpochMap(ObjectMapper):
 
