@@ -1,5 +1,6 @@
 from collections import Iterable
 import numpy as np
+import functools
 import os.path
 from h5py import File, Group, Dataset, special_dtype, SoftLink, ExternalLink
 
@@ -257,7 +258,7 @@ __data_types = (
         {'name': 'name', 'type': str, 'doc': 'the name of the Dataset to write'},
         {'name': 'data', 'type': __data_types, 'doc': 'the data object to be written'},
         {'name': 'attributes', 'type': dict, 'doc': 'a dict containing the attributes on the Dataset, indexed by attribute name'},
-        {'name': 'default_dtype', 'type': (type, str), 'doc': 'the default dtype to use, if it cannot be inferred', 'default': None},
+        {'name': 'default_dtype', 'type': (type, str, list), 'doc': 'the default dtype to use, if it cannot be inferred', 'default': None},
         returns='the Dataset that was created', rtype=Dataset, is_method=False)
 def write_dataset(**kwargs):
     """ Write a dataset to HDF5
@@ -265,10 +266,13 @@ def write_dataset(**kwargs):
     The function uses other dataset-dependent write functions, e.g,
     __scalar_fill__, __list_fill__ and __chunked_iter_fill__ to write the data.
     """
+
     parent, name, data, attributes, default_dtype = getargs('parent', 'name', 'data', 'attributes', 'default_dtype', kwargs)
     dset = None
     link = None
-    if isinstance(data, str):
+    if isinstance(data, dict):
+        dset = __compound_dataset_fill__(parent, name, data, default_dtype)
+    elif isinstance(data, str):
         dset = __scalar_fill__(parent, name, data)
     elif isinstance(data, DataChunkIterator):
         dset = __chunked_iter_fill__(parent, name, data)
@@ -368,4 +372,21 @@ def __list_fill__(parent, name, data, default_dtype=None):
         new_shape[0] = len(data)
         dset.resize(new_shape)
     dset[:] = data
+    return dset
+
+def __compound_dataset_fill__(parent, name, data, default_dtype):
+
+    try:
+        column_length_list = [len(x) for x in data.values()]
+        assert functools.reduce(lambda x,y:x==y, column_length_list)
+        num_rows = column_length_list[0]
+        dtype = [('foo', np.dtype('int64')), ('bar', np.dtype('float64'))]
+        dset = parent.require_dataset(name, (num_rows,), dtype=dtype)
+        for col_spec_dict in default_dtype:
+            curr_label = col_spec_dict['label']
+            dset[curr_label] = data[curr_label]
+
+    except Exception as exc:
+        raise Exception("Could not create compount dataset %s in %s" % (name, parent.name)) from exc
+
     return dset
