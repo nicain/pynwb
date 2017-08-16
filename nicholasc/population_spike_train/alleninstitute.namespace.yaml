@@ -1,6 +1,0 @@
-namespaces:
-- doc: Allen Institute extensions
-  name: alleninstitute
-  schema:
-  - namespace: core
-  - source: alleninstitute.extensions.yaml

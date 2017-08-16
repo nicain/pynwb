@@ -1,8 +1,0 @@
-groups:
-- datasets:
-  - doc: dataset_doc
-    dtype: int
-    name: data
-  doc: A custom TimeSeries that stores neuron gids and times
-  neurodata_type_def: PopulationSpikeTrain
-  neurodata_type_inc: TimeSeries
