@@ -410,12 +410,12 @@ def __compound_dataset_fill__(parent, name, data, default_dtype):
     try:
         CompoundDatasetLengthException.assert_dict(data)
     except CompoundDatasetLengthException as exc:
-        raise CompoundDatasetLengthException("Could not create scalar dataset %s in %s" % (name, parent.name)) from exc
+        raise_from(CompoundDatasetLengthException("Could not create scalar dataset %s in %s" % (name, parent.name)), exc)
 
     try:
         CompoundDatasetLabelException.assert_dict(default_dtype, data)
     except CompoundDatasetLabelException as exc:
-        raise CompoundDatasetLabelException("Could not create scalar dataset %s in %s" % (name, parent.name)) from exc
+        raise_from(CompoundDatasetLabelException("Could not create scalar dataset %s in %s" % (name, parent.name)), exc)
 
     try:
         num_rows = len(list(data.values())[0])
@@ -426,6 +426,6 @@ def __compound_dataset_fill__(parent, name, data, default_dtype):
             dset[curr_label] = data[curr_label]
 
     except Exception as exc:
-        raise Exception("Could not create compount dataset %s in %s" % (name, parent.name)) from exc
+        raise_from(Exception("Could not create compount dataset %s in %s" % (name, parent.name)),exc)
 
     return dset
