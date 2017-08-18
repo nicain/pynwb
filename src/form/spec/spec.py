@@ -359,7 +359,7 @@ class BaseStorageSpec(Spec):
 
 _dataset_args = [
         {'name': 'doc', 'type': str, 'doc': 'a description about what this specification represents'},
-        {'name': 'dtype', 'type': str, 'doc': 'The data type of this attribute'},
+        {'name': 'dtype', 'type': (str, list), 'doc': 'The data type of this attribute'},
         {'name': 'name', 'type': str, 'doc': 'The name of this dataset', 'default': None},
         {'name': 'default_name', 'type': str, 'doc': 'The default name of this dataset', 'default': None},
         {'name': 'shape', 'type': (list, tuple), 'doc': 'the shape of this dataset', 'default': None},

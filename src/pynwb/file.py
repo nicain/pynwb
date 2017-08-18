@@ -257,7 +257,7 @@ class NWBFile(NWBContainer):
         ts, epoch = getargs('ts', 'epoch', kwargs)
         self.__set_timeseries(self.__raw_timeseries, ts, epoch)
 
-    @docval({'name': 'ts', 'type': TimeSeries, 'doc': 'the  TimeSeries object to add'},
+    @docval({'name': 'ts', 'type': (TimeSeries, NWBContainer), 'doc': 'the  TimeSeries object to add'},
             {'name': 'epoch', 'type': (str, Epoch), 'doc': 'the name of an epoch or an Epoch object or a list of names of epochs or Epoch objects', 'default': None},
             returns="the TimeSeries object")
     def add_stimulus(self, **kwargs):
