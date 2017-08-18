@@ -389,6 +389,13 @@ class CompoundDatasetLengthException(RuntimeError):
         except AssertionError:
             raise cls("Not all columns same length: %s" % column_length_dict)
 
+def chg(data, x):
+    if np.dtype(x['dtype']) == np.dtype('S'):
+        max_len = np.max([len(xi)  for xi in data[x['label']]])
+        return (x['label'], np.dtype('|S%s' % max_len))
+    else:
+        return (x['label'], np.dtype(x['dtype']))
+
 class CompoundDatasetLabelException(RuntimeError):
     '''Exception to throw when testing schema columns versus data'''
 
@@ -405,6 +412,9 @@ class CompoundDatasetLabelException(RuntimeError):
         except AssertionError:
             raise cls("Column labels not same: %s vs %s" % (schema_key_list, dataset_key_list))
 
+
+
+
 def __compound_dataset_fill__(parent, name, data, default_dtype):
 
     try:
@@ -419,7 +429,7 @@ def __compound_dataset_fill__(parent, name, data, default_dtype):
 
     try:
         num_rows = len(list(data.values())[0])
-        dtype = [(x['label'], np.dtype(x['dtype'])) for x in default_dtype]
+        dtype = [chg(data, x) for x in default_dtype]
         dset = parent.require_dataset(name, (num_rows,), dtype=dtype)
         for col_spec_dict in default_dtype:
             curr_label = col_spec_dict['label']
