@@ -1,0 +1,17 @@
+groups:
+- attributes:
+  - doc: no help for you
+    dtype: str
+    name: help
+    value: YUP
+  datasets:
+  - doc: dataset_doc
+    dtype:
+    - dtype: int
+      label: foo
+    - dtype: float
+      label: bar
+    name: table
+  doc: An example table spec
+  neurodata_type_def: Table
+  neurodata_type_inc: NWBContainer

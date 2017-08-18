@@ -766,4 +766,3 @@ class GroupSpec(BaseStorageSpec):
         if 'links' in ret:
             ret['links'] = list(map(cls.link_spec_cls().build_spec, ret['links']))
         return ret
-
